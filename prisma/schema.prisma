@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  password    String
+  isInstructor Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  courses     Course[]  @relation("InstructorCourses")
+  enrollments Enrollment[]
+  reviews     Review[]
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  instructor  User      @relation("InstructorCourses", fields: [instructorId], references: [id])
+  instructorId Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  lessons     Lesson[]
+  enrollments Enrollment[]
+  reviews     Review[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  courses  Course[]
+}
+
+model Enrollment {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  course    Course    @relation(fields: [courseId], references: [id])
+  courseId  Int
+  enrolledAt DateTime @default(now())
+}
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  course    Course    @relation(fields: [courseId], references: [id])
+  courseId  Int
+  rating    Int       @default(1) // Rating from 1 to 5
+  comment   String?
+  createdAt DateTime  @default(now())
+}
+
+model Lesson {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  course    Course    @relation(fields: [courseId], references: [id])
+  courseId  Int
+  order     Int       @default(1) // Order of lessons in the course
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
