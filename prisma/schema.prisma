@@ -8,67 +8,116 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
+  id          String       @id @default(uuid())
   name        String
   email       String    @unique
   password    String
   isInstructor Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  courses     Course[]  @relation("InstructorCourses")
-  enrollments Enrollment[]
-  reviews     Review[]
+  courses  CourseUser[]
+  favorite Favorite[]
+  review Review[]
+  
+}
+
+model Teacher{
+  id          String       @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  courses     Course[]
 }
 
 model Course {
-  id          Int       @id @default(autoincrement())
-  title       String
+  id          String       @id @default(uuid())
+  name        String
   description String
-  price       Float
+  teacher     Teacher @relation(fields: [teacherId], references: [id])
+  teacherId   String
+  students    CourseUser[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  instructor  User      @relation("InstructorCourses", fields: [instructorId], references: [id])
-  instructorId Int
-  category    Category  @relation(fields: [categoryId], references: [id])
-  categoryId  Int
-  lessons     Lesson[]
-  enrollments Enrollment[]
-  reviews     Review[]
+  isPublished Boolean @default(false)
+  Category    Category[]
+  Level       Level[]
+  Language    Language[]
+  Tags        Tags[]
+  favorite Favorite[]
+  review Review[]
+}
+
+model CourseUser{
+  id          String       @id @default(uuid())
+  user      User @relation(fields: [userId], references: [id])
+  userId      String
+  course     Course @relation(fields: [courseId], references: [id])
+  courseId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  courses  Course[]
+  id          String @id @default(uuid())
+  name        String @unique
+  subCategories SubCategory[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  courses     Course[]
 }
 
-model Enrollment {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  course    Course    @relation(fields: [courseId], references: [id])
-  courseId  Int
-  enrolledAt DateTime @default(now())
+
+model SubCategory {
+  id          String       @id @default(uuid())
+  name        String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-model Review {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  course    Course    @relation(fields: [courseId], references: [id])
-  courseId  Int
-  rating    Int       @default(1) // Rating from 1 to 5
-  comment   String?
-  createdAt DateTime  @default(now())
+
+model Level{
+  id          String       @id @default(uuid())
+  name        String
+  courses Course[]
 }
 
-model Lesson {
-  id        Int       @id @default(autoincrement())
-  title     String
-  content   String
-  course    Course    @relation(fields: [courseId], references: [id])
-  courseId  Int
-  order     Int       @default(1) // Order of lessons in the course
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Language{
+  id          String       @id @default(uuid()) 
+  name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  courses     Course[]
+} 
+
+model Tags{
+  id          String       @id @default(uuid())
+  name        String
+  courses     Course[]
+}
+
+model Favorite{
+  id          String       @id @default(uuid())
+  user      User @relation(fields: [userId], references: [id])
+  userId      String
+  course     Course @relation(fields: [courseId], references: [id])
+  courseId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Review{
+  id          String       @id @default(uuid())
+  user      User @relation(fields: [userId], references: [id])
+  userId      String
+  course     Course @relation(fields: [courseId], references: [id])
+  courseId   String
+  rating     Int
+  comment    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

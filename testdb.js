@@ -14,3 +14,8 @@ const pool = new Pool({
     console.error('Error connecting to the database:', err);
   }
 })();
+
+
+/** 
+ * run node testdb.js for testing datadase connection
+ */
